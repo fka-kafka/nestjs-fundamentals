@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, NotFoundException } from '@nestjs/common'
-import userData from './users.json'
 import { User } from './entities/user.entity'
 import { UserRole } from './entities/user-role.enum'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -8,7 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
-  private users: User[] = userData as unknown as User[]
+  private users: User[] = []
 
   findAllUsers(role?: UserRole) {
     if (role) {
