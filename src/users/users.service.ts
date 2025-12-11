@@ -1,22 +1,16 @@
 /* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common'
 import userData from './users.json'
-
-export interface User {
-  name: string
-  id: number
-  email: string
-  role: string
-}
-
-export type UserDTO = Omit<User, 'id'>
-export type PartialUserDTO = Partial<Omit<User, 'id'>>
+import { User } from './entities/user.entity'
+import { UserRole } from './entities/user-role.enum'
+import { CreateUserDto } from './dto/create-user.dto'
+import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
-  private users: User[] = userData
+  private users: User[] = userData as unknown as User[]
 
-  findAllUsers(role?: User['role']) {
+  findAllUsers(role?: UserRole) {
     if (role) {
       return this.users.filter(user => user.role === role)
     }
@@ -29,20 +23,20 @@ export class UsersService {
     return user
   }
 
-  createUser(newUserData: UserDTO) {
+  createUser(createUserDto: CreateUserDto) {
     const sortedUsers = [...this.users].sort((a, b) => b.id - a.id)
     const newUser = {
       id: sortedUsers[0].id + 1,
-      ...newUserData,
+      ...createUserDto,
     }
     this.users.push(newUser)
     return newUser
   }
 
-  updateUser(id: number, userToUpdate: PartialUserDTO) {
+  updateUser(id: number, updateUserDto: UpdateUserDto) {
     this.users = this.users.map((user) => {
     if (user.id === id) {
-      return { ...user, ...userToUpdate }
+      return { ...user, ...updateUserDto }
     }
     return user
   })
