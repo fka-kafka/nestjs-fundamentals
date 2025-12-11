@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable } from '@nestjs/common'
-import userData from './users.json'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { User } from './entities/user.entity'
 import { UserRole } from './entities/user-role.enum'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -8,11 +7,13 @@ import { UpdateUserDto } from './dto/update-user.dto'
 
 @Injectable()
 export class UsersService {
-  private users: User[] = userData as unknown as User[]
+  private users: User[] = []
 
   findAllUsers(role?: UserRole) {
     if (role) {
-      return this.users.filter(user => user.role === role)
+      const rolesArray = this.users.filter(user => user.role === role)
+      if (!rolesArray.length) throw new NotFoundException(`The Role ${role} does not exist.`)
+      return rolesArray
     }
 
     return this.users
@@ -20,6 +21,7 @@ export class UsersService {
 
   findOneUser(id: User['id']) {
     const user = this.users.find(user => user.id === id)
+    if (!user) throw new NotFoundException('User Not Found')
     return user
   }
 
@@ -35,11 +37,11 @@ export class UsersService {
 
   updateUser(id: number, updateUserDto: UpdateUserDto) {
     this.users = this.users.map((user) => {
-    if (user.id === id) {
-      return { ...user, ...updateUserDto }
-    }
-    return user
-  })
+      if (user.id === id) {
+        return { ...user, ...updateUserDto }
+      }
+      return user
+    })
     return this.findOneUser(id)
   }
 
